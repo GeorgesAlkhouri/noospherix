@@ -17,5 +17,15 @@
     inputs@{ self, ... }:
     {
       hub = inputs;
+      templates =
+        let
+          simple = {
+            path = ./templates/simple;
+            description = "A simple devenv flake.nix example.";
+          };
+        in
+        {
+          default = simple;
+        };
     };
 }
