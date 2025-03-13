@@ -2,7 +2,7 @@
   description = "Description for the project";
 
   inputs = {
-    noospherix.url = "github:GeorgesAlkhouri/noospherix/develop";
+    noospherix.url = "github:GeorgesAlkhouri/noospherix";
     nixpkgs.follows = "noospherix/nixpkgs";
     nixpkgs-unstable.follows = "noospherix/nixpkgs-unstable";
     flake-parts.follows = "noospherix/flake-parts";
