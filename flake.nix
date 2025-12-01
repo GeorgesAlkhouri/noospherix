@@ -2,7 +2,7 @@
   description = "Centralized input hub for devenv projects";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     # nixpkgs-unstable.url = "github:NixOS/nixpkgs/b024ced1aac25639f8ca8fdfc2f8c4fbd66c48ef";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
