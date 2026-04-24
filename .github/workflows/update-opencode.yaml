@@ -1,0 +1,58 @@
+name: Update OpenCode Release
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Update OpenCode release
+        run: |
+          latest_tag="$(curl -fsSL https://api.github.com/repos/anomalyco/opencode/releases/latest | jq -r '.tag_name')"
+          opencode_pattern='^[[:space:]]*opencode\.url = "github:anomalyco/opencode\?ref=[^"]+";$'
+          match_count="$(grep -Ec "$opencode_pattern" flake.nix)"
+          if [ "$match_count" -ne 1 ]; then
+            echo "Expected exactly one matching opencode.url line in flake.nix, found $match_count" >&2
+            exit 1
+          fi
+
+          new_line="    opencode.url = \"github:anomalyco/opencode?ref=${latest_tag}\";"
+          current_line="$(grep -E "$opencode_pattern" flake.nix)"
+          if [ "$current_line" = "$new_line" ]; then
+            echo "opencode.url is already pinned to $latest_tag; no update needed"
+            exit 0
+          fi
+
+          perl -0pi -e 's|^\s*opencode\.url = "github:anomalyco/opencode\?ref=[^"]+";|    opencode.url = "github:anomalyco/opencode?ref='"$latest_tag"'";|m' flake.nix
+          updated_count="$(grep -Fxc "$new_line" flake.nix)"
+          if [ "$updated_count" -ne 1 ]; then
+            echo "Expected rewritten opencode.url line to appear exactly once in flake.nix, found $updated_count" >&2
+            exit 1
+          fi
+
+          nix flake lock --update-input opencode
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add flake.nix flake.lock
+          git commit -m "chore: update opencode release" || exit 0
+          git push
