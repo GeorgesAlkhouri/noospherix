@@ -48,7 +48,7 @@
       url = "github:obra/superpowers";
       flake = false;
     };
-    opencode.url = "github:anomalyco/opencode?ref=v1.17.15";
+    opencode.url = "github:anomalyco/opencode?ref=v1.17.18";
   };
 
   outputs =
